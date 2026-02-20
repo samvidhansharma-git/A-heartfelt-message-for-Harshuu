@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>For My Akka 🤍</title>
+<meta name="description" content="A farewell from the heart — for the one who became more than a lecturer."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --midnight: #0f172a;
+    --deep: #0a0f1e;
+    --purple1: #1e1040;
+    --purple2: #2d1b69;
+    --rose: #f9a8d4;
+    --rose-dim: rgba(249,168,212,0.15);
+    --rose-glow: rgba(249,168,212,0.4);
+    --gold: #d4a853;
+    --gold-dim: rgba(212,168,83,0.15);
+    --white: #f8fafc;
+    --muted: rgba(248,250,252,0.55);
+    --glass: rgba(255,255,255,0.04);
+    --glass-border: rgba(255,255,255,0.08);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--deep);
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* ── CUSTOM CURSOR ── */
+  #cursor {
+    width: 12px; height: 12px;
+    background: var(--rose);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none;
+    z-index: 99999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.08s ease, width 0.2s ease, height 0.2s ease, background 0.2s ease;
+    mix-blend-mode: screen;
+  }
+  #cursor-ring {
+    width: 36px; height: 36px;
+    border: 1px solid rgba(249,168,212,0.4);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none;
+    z-index: 99998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.18s ease, width 0.25s ease, height 0.25s ease;
+  }
+
+  /* ── PASSWORD GATE ── */
+  #gate {
+    position: fixed; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999;
+    background: radial-gradient(ellipse at 30% 40%, #1e1040 0%, #0a0f1e 60%, #0f172a 100%);
+    transition: opacity 1.2s ease, filter 1.2s ease;
+  }
+  #gate.dissolve { opacity: 0; filter: blur(20px); pointer-events: none; }
+
+  #gate-canvas {
+    position: absolute; inset: 0;
+    pointer-events: none;
+  }
+
+  .gate-panel {
+    position: relative; z-index: 2;
+    text-align: center;
+    padding: 3rem 3.5rem;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 24px;
+    backdrop-filter: blur(24px);
+    max-width: 420px; width: 90%;
+    animation: fadeUp 1.2s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .gate-symbol {
+    font-size: 2.4rem;
+    margin-bottom: 1.2rem;
+    animation: pulse-glow 3s ease-in-out infinite;
+  }
+  @keyframes pulse-glow {
+    0%, 100% { text-shadow: 0 0 20px rgba(249,168,212,0.3); }
+    50% { text-shadow: 0 0 40px rgba(249,168,212,0.7); }
+  }
+
+  .gate-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--white);
+    margin-bottom: 0.4rem;
+    letter-spacing: 0.02em;
+  }
+  .gate-sub {
+    font-size: 0.78rem;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+  }
+
+  .input-wrap {
+    position: relative;
+    margin-bottom: 1.2rem;
+  }
+  #pwd-input {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 0.85rem 1.2rem;
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.15em;
+    outline: none;
+    text-align: center;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  #pwd-input::placeholder { color: rgba(255,255,255,0.25); letter-spacing: 0.05em; }
+  #pwd-input:focus {
+    border-color: rgba(249,168,212,0.5);
+    box-shadow: 0 0 0 3px rgba(249,168,212,0.1), 0 0 20px rgba(249,168,212,0.15);
+  }
+  #pwd-input.shake {
+    animation: shake 0.4s ease;
+    border-color: rgba(239,68,68,0.5);
+    box-shadow: 0 0 0 3px rgba(239,68,68,0.1), 0 0 20px rgba(239,68,68,0.15);
+  }
+  @keyframes shake {
+    0%,100%{transform:translateX(0)}
+    20%{transform:translateX(-8px)}
+    40%{transform:translateX(8px)}
+    60%{transform:translateX(-6px)}
+    80%{transform:translateX(6px)}
+  }
+
+  .gate-btn {
+    width: 100%;
+    padding: 0.85rem;
+    background: linear-gradient(135deg, rgba(249,168,212,0.15), rgba(212,168,83,0.1));
+    border: 1px solid rgba(249,168,212,0.25);
+    border-radius: 10px;
+    color: var(--white);
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.08em;
+    cursor: none;
+    transition: all 0.3s ease;
+  }
+  .gate-btn:hover {
+    background: linear-gradient(135deg, rgba(249,168,212,0.25), rgba(212,168,83,0.18));
+    box-shadow: 0 0 30px rgba(249,168,212,0.2);
+    transform: translateY(-1px);
+  }
+  .gate-hint { font-size: 0.7rem; color: rgba(255,255,255,0.18); margin-top: 1.5rem; letter-spacing: 0.1em; }
+  .gate-error {
+    font-size: 0.75rem;
+    color: rgba(239,68,68,0.8);
+    min-height: 1.2rem;
+    margin-bottom: 0.5rem;
+    transition: opacity 0.3s;
+  }
+
+  /* ── MAIN CONTENT ── */
+  #main { opacity: 0; transition: opacity 1.5s ease 0.3s; }
+  #main.visible { opacity: 1; }
+
+  /* ── HERO ── */
+  #hero {
+    position: relative;
+    height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  #galaxy-canvas {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+  }
+  .vignette {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at center, transparent 30%, rgba(10,15,30,0.85) 100%);
+    pointer-events: none;
+  }
+  .hero-text {
+    position: relative; z-index: 2;
+    text-align: center;
+    padding: 0 1.5rem;
+  }
+  .hero-eyebrow {
+    font-size: 0.72rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0;
+    transform: translateY(15px);
+    animation: revealUp 0.9s ease 0.5s forwards;
+    margin-bottom: 1.2rem;
+  }
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 8vw, 6rem);
+    font-weight: 500;
+    line-height: 1.1;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: revealUp 1s ease 0.9s forwards;
+    margin-bottom: 1.5rem;
+  }
+  .hero-title span { color: var(--rose); }
+  .hero-sub {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: clamp(1rem, 2.5vw, 1.3rem);
+    color: var(--muted);
+    opacity: 0;
+    transform: translateY(15px);
+    animation: revealUp 0.9s ease 1.4s forwards;
+    max-width: 520px;
+    margin: 0 auto 2.5rem;
+  }
+  .hero-scroll {
+    opacity: 0;
+    animation: revealUp 0.8s ease 2s forwards, bobble 2.5s ease 2.8s infinite;
+    font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+  }
+  @keyframes revealUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes bobble {
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(6px)}
+  }
+
+  /* ── SECTIONS ── */
+  section { position: relative; padding: 6rem 1.5rem; }
+  .container { max-width: 860px; margin: 0 auto; }
+  .section-label {
+    font-size: 0.68rem; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 0.8rem; opacity: 0.8;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 500;
+    margin-bottom: 1rem;
+    line-height: 1.25;
+  }
+
+  /* reveal on scroll */
+  .reveal {
+    opacity: 0; transform: translateY(40px);
+    transition: opacity 0.9s ease, transform 0.9s ease;
+  }
+  .reveal.in-view { opacity: 1; transform: translateY(0); }
+
+  /* ── ENVELOPE ── */
+  #envelope-section {
+    min-height: 60vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: linear-gradient(180deg, var(--deep) 0%, #0c0a1a 50%, var(--deep) 100%);
+  }
+  .env-wrap {
+    perspective: 1200px;
+    cursor: none;
+    margin-top: 2.5rem;
+  }
+  .envelope {
+    position: relative;
+    width: 300px; height: 200px;
+    transform-style: preserve-3d;
+    transition: transform 0.4s ease;
+  }
+  .envelope:hover { transform: rotateX(-5deg) rotateY(3deg) scale(1.03); }
+  .env-body {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, #1a1230, #261a50);
+    border-radius: 6px;
+    border: 1px solid rgba(212,168,83,0.2);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(212,168,83,0.08);
+    overflow: hidden;
+  }
+  .env-flap {
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 50%;
+    background: linear-gradient(170deg, #1f1640, #2d1b69);
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    transform-origin: top center;
+    transition: transform 0.8s cubic-bezier(0.4,0,0.2,1);
+    border-bottom: 1px solid rgba(212,168,83,0.15);
+    z-index: 2;
+  }
+  .envelope.open .env-flap { transform: rotateX(180deg); }
+  .env-label {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding-top: 1.5rem;
+  }
+  .env-to {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 0.95rem;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 0.2rem;
+  }
+  .env-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    color: var(--gold);
+    letter-spacing: 0.05em;
+  }
+  .env-hint {
+    margin-top: 1.2rem;
+    font-size: 0.7rem; letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.25);
+    text-transform: uppercase;
+    animation: bobble 2.5s ease infinite;
+  }
+
+  /* Letter reveal */
+  #letter-reveal {
+    position: fixed; inset: 0;
+    z-index: 888;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(10,15,30,0.92);
+    backdrop-filter: blur(12px);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.6s ease;
+    padding: 1.5rem;
+  }
+  #letter-reveal.open { opacity: 1; pointer-events: all; }
+  .letter-paper {
+    background: linear-gradient(160deg, #12102a, #1a1235);
+    border: 1px solid rgba(249,168,212,0.12);
+    border-radius: 16px;
+    padding: 3rem 2.8rem;
+    max-width: 640px; width: 100%;
+    max-height: 85vh; overflow-y: auto;
+    box-shadow: 0 0 80px rgba(249,168,212,0.1), 0 30px 60px rgba(0,0,0,0.5);
+    position: relative;
+    transform: translateY(30px);
+    transition: transform 0.7s cubic-bezier(0.2,0,0,1) 0.2s;
+  }
+  #letter-reveal.open .letter-paper { transform: translateY(0); }
+  .letter-paper::-webkit-scrollbar { width: 4px; }
+  .letter-paper::-webkit-scrollbar-track { background: transparent; }
+  .letter-paper::-webkit-scrollbar-thumb { background: rgba(249,168,212,0.2); border-radius: 2px; }
+  .close-btn {
+    position: absolute; top: 1rem; right: 1.2rem;
+    background: none; border: none; color: rgba(255,255,255,0.3);
+    font-size: 1.4rem; cursor: none; transition: color 0.2s;
+  }
+  .close-btn:hover { color: var(--rose); }
+  #typewriter-text {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(0.9rem, 2vw, 1.05rem);
+    line-height: 1.95;
+    color: rgba(248,250,252,0.88);
+    white-space: pre-wrap;
+  }
+  .cursor-blink {
+    display: inline-block;
+    width: 2px; height: 1.1em;
+    background: var(--rose);
+    margin-left: 2px;
+    vertical-align: middle;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  /* ── CARDS ── */
+  #cards-section { background: linear-gradient(180deg, var(--deep), #0c0a1a); }
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.2rem;
+    margin-top: 2.5rem;
+  }
+  .glass-card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    cursor: none;
+    transition: transform 0.35s ease, box-shadow 0.35s ease, background 0.35s ease, border-color 0.35s ease;
+    position: relative; overflow: hidden;
+  }
+  .glass-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(249,168,212,0.08) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  .glass-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    background: rgba(255,255,255,0.07);
+    border-color: rgba(249,168,212,0.2);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 40px rgba(249,168,212,0.08);
+  }
+  .glass-card:hover::before { opacity: 1; }
+  .card-icon { font-size: 2.2rem; margin-bottom: 0.8rem; display: block; }
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem; font-weight: 500;
+    color: var(--white); margin-bottom: 0.5rem;
+  }
+  .card-desc {
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.6;
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.5s ease, opacity 0.4s ease;
+    opacity: 0;
+  }
+  .glass-card.expanded .card-desc { max-height: 200px; opacity: 1; }
+  .card-sub { font-size: 0.72rem; color: rgba(212,168,83,0.6); letter-spacing: 0.1em; }
+
+  /* ── TIMELINE ── */
+  #timeline-section { background: var(--deep); }
+  .timeline {
+    position: relative;
+    margin-top: 3rem;
+    padding-left: 2rem;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0;
+    width: 1px;
+    background: linear-gradient(180deg, transparent, rgba(249,168,212,0.3) 20%, rgba(212,168,83,0.3) 80%, transparent);
+  }
+  .tl-item {
+    position: relative;
+    padding: 0 0 3.5rem 2.5rem;
+    opacity: 0; transform: translateX(-20px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .tl-item.in-view { opacity: 1; transform: translateX(0); }
+  .tl-item::before {
+    content: '';
+    position: absolute; left: -5px; top: 6px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--rose);
+    box-shadow: 0 0 15px rgba(249,168,212,0.5);
+  }
+  .tl-phase {
+    font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--gold); opacity: 0.7; margin-bottom: 0.3rem;
+  }
+  .tl-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem; font-weight: 500;
+    margin-bottom: 0.5rem;
+  }
+  .tl-body { font-size: 0.88rem; color: var(--muted); max-width: 480px; line-height: 1.75; }
+
+  /* ── PROMISE ── */
+  #promise-section {
+    min-height: 70vh;
+    display: flex; align-items: center; justify-content: center;
+    text-align: center;
+    background: radial-gradient(ellipse at 50% 60%, #1e1040 0%, #0a0f1e 70%);
+    overflow: hidden;
+    position: relative;
+  }
+  #promise-canvas {
+    position: absolute; inset: 0;
+    pointer-events: none; opacity: 0.5;
+  }
+  .promise-inner { position: relative; z-index: 2; padding: 2rem; }
+  .promise-quote {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.5rem, 4vw, 2.6rem);
+    font-weight: 500;
+    line-height: 1.4;
+    animation: glow-pulse 4s ease-in-out infinite;
+    max-width: 640px; margin: 0 auto;
+  }
+  @keyframes glow-pulse {
+    0%,100% { text-shadow: 0 0 30px rgba(249,168,212,0.2); }
+    50% { text-shadow: 0 0 60px rgba(249,168,212,0.5), 0 0 100px rgba(249,168,212,0.2); }
+  }
+  .promise-sub {
+    margin-top: 1.5rem;
+    font-size: 0.8rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: rgba(212,168,83,0.5);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.15);
+    letter-spacing: 0.1em;
+  }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--deep); }
+  ::-webkit-scrollbar-thumb { background: rgba(249,168,212,0.2); border-radius: 2px; }
+
+  @media (max-width: 600px) {
+    .gate-panel { padding: 2rem 1.8rem; }
+    .letter-paper { padding: 2rem 1.5rem; }
+    .envelope { width: 260px; height: 175px; }
+    section { padding: 4rem 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- ══════════════════════════════════════
+     PASSWORD GATE
+══════════════════════════════════════ -->
+<div id="gate">
+  <canvas id="gate-canvas"></canvas>
+  <div class="gate-panel">
+    <div class="gate-symbol">🤍</div>
+    <div class="gate-title">A Message for You</div>
+    <div class="gate-sub">Private · Personal · From the heart</div>
+    <div class="input-wrap">
+      <input id="pwd-input" type="password" placeholder="Enter passphrase" autocomplete="off" spellcheck="false"/>
+    </div>
+    <div class="gate-error" id="gate-error"></div>
+    <button class="gate-btn" id="gate-btn">Enter</button>
+    <div class="gate-hint">You already know the word.</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     MAIN CONTENT
+══════════════════════════════════════ -->
+<div id="main">
+
+  <!-- HERO -->
+  <section id="hero">
+    <canvas id="galaxy-canvas"></canvas>
+    <div class="vignette"></div>
+    <div class="hero-text">
+      <div class="hero-eyebrow">A farewell from a grateful student</div>
+      <h1 class="hero-title">For My <span>Akka</span> 🤍</h1>
+      <p class="hero-sub">"Some bonds are built through respect, not just relation."</p>
+      <div class="hero-scroll">↓ &nbsp; Scroll to read</div>
+    </div>
+  </section>
+
+  <!-- ENVELOPE -->
+  <section id="envelope-section">
+    <div class="container" style="text-align:center;">
+      <div class="section-label reveal">Before You Read</div>
+      <h2 class="section-title reveal" style="font-family:'Playfair Display',serif;">There is a letter here,<br/>waiting for you.</h2>
+      <div class="env-wrap reveal" style="margin:0 auto;display:inline-block;">
+        <div class="envelope" id="envelope" title="Click to open">
+          <div class="env-body">
+            <div class="env-label">
+              <span class="env-to">To:</span>
+              <span class="env-name">Harshuu 🤍</span>
+            </div>
+          </div>
+          <div class="env-flap"></div>
+        </div>
+        <div class="env-hint">Tap to open</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LETTER MODAL -->
+  <div id="letter-reveal">
+    <div class="letter-paper">
+      <button class="close-btn" id="close-letter" title="Close">✕</button>
+      <div id="typewriter-text"></div>
+      <span class="cursor-blink" id="tw-cursor"></span>
+    </div>
+  </div>
+
+  <!-- CARDS -->
+  <section id="cards-section">
+    <div class="container">
+      <div class="section-label reveal">What You Gave Me</div>
+      <h2 class="section-title reveal">Why you are<br/>extraordinary, Akka.</h2>
+      <div class="cards-grid reveal">
+
+        <div class="glass-card" data-desc="Your guidance was never just academic. It showed me how to walk with purpose, make decisions with clarity, and face the unknown without fear. You guided me when I didn't even know I needed it.">
+          <span class="card-icon">🌸</span>
+          <div class="card-title">Guidance</div>
+          <div class="card-sub">Click to read</div>
+          <div class="card-desc"></div>
+        </div>
+
+        <div class="glass-card" data-desc="Your sense of discipline wasn't strict — it was respectful. You showed me that structure is not a cage but a foundation. Because of you, I take my responsibilities seriously.">
+          <span class="card-icon">📘</span>
+          <div class="card-title">Discipline</div>
+          <div class="card-sub">Click to read</div>
+          <div class="card-desc"></div>
+        </div>
+
+        <div class="glass-card" data-desc="You may not realize how much small moments of care can mean. A word of encouragement, a moment of patience — those things stayed with me long after the class ended.">
+          <span class="card-icon">🤍</span>
+          <div class="card-title">Care</div>
+          <div class="card-sub">Click to read</div>
+          <div class="card-desc"></div>
+        </div>
+
+        <div class="glass-card" data-desc="Watching you — composed, confident, purposeful — inspired me silently. You didn't need to preach. You simply existed, and that was enough to make me want to be better.">
+          <span class="card-icon">✨</span>
+          <div class="card-title">Inspiration</div>
+          <div class="card-sub">Click to read</div>
+          <div class="card-desc"></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- TIMELINE -->
+  <section id="timeline-section">
+    <div class="container">
+      <div class="section-label reveal">The Journey</div>
+      <h2 class="section-title reveal">Moments I will<br/>never forget.</h2>
+      <div class="timeline">
+
+        <div class="tl-item">
+          <div class="tl-phase">Chapter One</div>
+          <div class="tl-title">The First Impression</div>
+          <div class="tl-body">You walked in — composed, unhurried. I remember thinking: this person knows exactly who she is. That composure silently taught me more than any textbook ever could.</div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-phase">Chapter Two</div>
+          <div class="tl-title">The First Guidance</div>
+          <div class="tl-body">The first time you corrected my path — not with harshness, but with patience — I felt seen. You didn't dismiss my effort. You elevated it. That is the mark of a great elder.</div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-phase">Chapter Three</div>
+          <div class="tl-title">A Moment of Correction</div>
+          <div class="tl-body">Your correction stung for a moment — but only because I cared. And you cared too. That is not discipline for its own sake. That is someone who wants you to genuinely grow.</div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-phase">Chapter Four</div>
+          <div class="tl-title">The Last Day of College</div>
+          <div class="tl-body">Tomorrow I walk out these gates. But I carry something with me that no certificate can represent — the memory of someone who unknowingly chose to become my Akka. 🤍</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- PROMISE -->
+  <section id="promise-section">
+    <canvas id="promise-canvas"></canvas>
+    <div class="promise-inner">
+      <div class="section-label reveal" style="margin-bottom:1.5rem;">My Promise</div>
+      <div class="promise-quote reveal">
+        "I will always remain<br/>your little one 🤍✨"
+      </div>
+      <div class="promise-sub reveal">— With gratitude, always</div>
+    </div>
+  </section>
+
+  <footer>
+    Made with love and respect &nbsp;·&nbsp; A farewell that words barely hold &nbsp;·&nbsp; 🤍
+  </footer>
+
+</div><!-- /main -->
+
+<!-- Three.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script>
+/* ════════════════════════════════
+   CUSTOM CURSOR
+════════════════════════════════ */
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx=0, my=0, rx=0, ry=0;
+document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; cursor.style.left=mx+'px'; cursor.style.top=my+'px'; });
+(function animCursor(){
+  rx += (mx-rx)*0.12; ry += (my-ry)*0.12;
+  ring.style.left=rx+'px'; ring.style.top=ry+'px';
+  requestAnimationFrame(animCursor);
+})();
+document.querySelectorAll('button,a,.glass-card,.envelope,.env-wrap').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cursor.style.width='20px';cursor.style.height='20px';ring.style.width='52px';ring.style.height='52px';});
+  el.addEventListener('mouseleave',()=>{cursor.style.width='12px';cursor.style.height='12px';ring.style.width='36px';ring.style.height='36px';});
+});
+
+/* ════════════════════════════════
+   GATE PARTICLE CANVAS
+════════════════════════════════ */
+(function(){
+  const c = document.getElementById('gate-canvas');
+  const ctx = c.getContext('2d');
+  let w,h,pts=[];
+  function resize(){ w=c.width=window.innerWidth; h=c.height=window.innerHeight; }
+  resize(); window.addEventListener('resize',resize);
+  for(let i=0;i<120;i++) pts.push({
+    x:Math.random(), y:Math.random(),
+    vx:(Math.random()-0.5)*0.0003, vy:(Math.random()-0.5)*0.0003,
+    r:Math.random()*1.5+0.3, a:Math.random()
+  });
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+    pts.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0)p.x=1; if(p.x>1)p.x=0;
+      if(p.y<0)p.y=1; if(p.y>1)p.y=0;
+      ctx.beginPath();
+      ctx.arc(p.x*w,p.y*h,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(249,168,212,${p.a*0.6})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ════════════════════════════════
+   PASSWORD GATE
+════════════════════════════════ */
+const PASSWORD = 'Harshuu';
+const gateEl = document.getElementById('gate');
+const mainEl = document.getElementById('main');
+const input = document.getElementById('pwd-input');
+const errorEl = document.getElementById('gate-error');
+
+function tryUnlock(){
+  if(input.value === PASSWORD){
+    gateEl.classList.add('dissolve');
+    setTimeout(()=>{ gateEl.style.display='none'; },1300);
+    mainEl.classList.add('visible');
+    sessionStorage.setItem('akka_unlocked','1');
+    initGalaxy();
+    initPromiseCanvas();
+  } else {
+    input.classList.add('shake');
+    errorEl.textContent = 'That is not the word. Try once more.';
+    setTimeout(()=>{ input.classList.remove('shake'); input.value=''; },500);
+  }
+}
+
+if(sessionStorage.getItem('akka_unlocked')){
+  gateEl.style.display='none';
+  mainEl.classList.add('visible');
+  setTimeout(()=>{ initGalaxy(); initPromiseCanvas(); },100);
+}
+
+document.getElementById('gate-btn').addEventListener('click', tryUnlock);
+input.addEventListener('keydown', e=>{ if(e.key==='Enter') tryUnlock(); });
+
+/* ════════════════════════════════
+   GALAXY (Three.js)
+════════════════════════════════ */
+function initGalaxy(){
+  const canvas = document.getElementById('galaxy-canvas');
+  const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  renderer.setClearColor(0x000000, 0);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, canvas.clientWidth/canvas.clientHeight, 0.1, 500);
+  camera.position.set(0, 2, 8);
+  camera.lookAt(0,0,0);
+
+  function resize(){
+    const w=canvas.clientWidth, h=canvas.clientHeight;
+    renderer.setSize(w,h,false);
+    camera.aspect=w/h; camera.updateProjectionMatrix();
+  }
+  resize(); window.addEventListener('resize',resize);
+
+  // Stars
+  const count = 6000;
+  const geo = new THREE.BufferGeometry();
+  const pos = new Float32Array(count*3);
+  const col = new Float32Array(count*3);
+  const roseC = new THREE.Color('#f9a8d4');
+  const goldC = new THREE.Color('#d4a853');
+  const blueC = new THREE.Color('#93c5fd');
+  const palette = [roseC, goldC, blueC, new THREE.Color('#e2e8f0')];
+
+  for(let i=0;i<count;i++){
+    const arm = Math.floor(Math.random()*3);
+    const angle = (arm/3)*Math.PI*2 + Math.random()*0.8;
+    const dist = Math.pow(Math.random(),0.6)*10;
+    const spread = (1-dist/10)*0.4;
+    pos[i*3]   = Math.cos(angle)*dist + (Math.random()-0.5)*spread*2;
+    pos[i*3+1] = (Math.random()-0.5)*1.5;
+    pos[i*3+2] = Math.sin(angle)*dist + (Math.random()-0.5)*spread*2;
+    const c = palette[Math.floor(Math.random()*palette.length)];
+    col[i*3]=c.r; col[i*3+1]=c.g; col[i*3+2]=c.b;
+  }
+  geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  geo.setAttribute('color', new THREE.BufferAttribute(col,3));
+
+  const mat = new THREE.PointsMaterial({
+    size:0.06, vertexColors:true, transparent:true, opacity:0.85,
+    sizeAttenuation:true
+  });
+  const stars = new THREE.Points(geo,mat);
+  scene.add(stars);
+
+  // Ambient dust
+  const dustGeo = new THREE.BufferGeometry();
+  const dustPos = new Float32Array(1500*3);
+  for(let i=0;i<1500;i++){
+    dustPos[i*3]=(Math.random()-0.5)*25;
+    dustPos[i*3+1]=(Math.random()-0.5)*5;
+    dustPos[i*3+2]=(Math.random()-0.5)*25;
+  }
+  dustGeo.setAttribute('position',new THREE.BufferAttribute(dustPos,3));
+  const dustMat = new THREE.PointsMaterial({size:0.02,color:0xffffff,transparent:true,opacity:0.25});
+  scene.add(new THREE.Points(dustGeo,dustMat));
+
+  let t=0;
+  function animate(){
+    requestAnimationFrame(animate);
+    t+=0.0003;
+    stars.rotation.y = t;
+    camera.position.y = Math.sin(t*0.5)*0.3 + 2;
+    renderer.render(scene,camera);
+  }
+  animate();
+}
+
+/* ════════════════════════════════
+   PROMISE CANVAS (floating particles)
+════════════════════════════════ */
+function initPromiseCanvas(){
+  const c = document.getElementById('promise-canvas');
+  const ctx = c.getContext('2d');
+  let w,h;
+  function resize(){ w=c.width=c.clientWidth; h=c.height=c.clientHeight; }
+  resize(); window.addEventListener('resize',resize);
+  const pts=[];
+  for(let i=0;i<60;i++) pts.push({
+    x:Math.random()*100, y:Math.random()*100+10,
+    vy:-(Math.random()*0.04+0.01),
+    r:Math.random()*2+0.5, a:Math.random()*0.5+0.1
+  });
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+    pts.forEach(p=>{
+      p.y+=p.vy;
+      if(p.y<-5){ p.y=105; p.x=Math.random()*100; }
+      ctx.beginPath();
+      ctx.arc(p.x/100*w,p.y/100*h,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(249,168,212,${p.a})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+/* ════════════════════════════════
+   ENVELOPE + LETTER
+════════════════════════════════ */
+const envelope = document.getElementById('envelope');
+const letterReveal = document.getElementById('letter-reveal');
+const closeBtn = document.getElementById('close-letter');
+const twText = document.getElementById('typewriter-text');
+const twCursor = document.getElementById('tw-cursor');
+
+const LETTER = `💌 My Dearest Akka 🤍
+
+Today is my last day in college… and everyone keeps asking me how I feel. I smile and say I'm fine. I tell them it's just another day, just the end of a chapter.
+
+But the truth is, my heart feels heavier than I expected.
+
+Because leaving college doesn't just mean leaving classrooms, corridors, and memories.
+It means walking away from the person who became my comfort here… you.
+
+I don't think you will ever truly understand what you mean to me.
+
+When I first met you, you were my teacher — someone I respected, someone I admired from a distance. But slowly, without me even realizing, something changed. Your presence stopped feeling formal. It started feeling familiar. Safe.
+
+Somewhere between lectures and small conversations, you became more than just a teacher to me. You became my elder sister — not just in words, but in the way you cared, the way you corrected me, the way you silently stood by me.
+
+You filled a space in my life that I didn't even know was empty.
+
+There were days when your simple "Are you okay?" meant more to me than you could imagine. In a world where everyone is busy, that small concern felt like warmth. Your scoldings never felt harsh — they felt protective. Your advice never felt ordinary — it felt like strength being handed to me.
+
+And your presence… your presence felt like safety.
+
+Now the thought of not seeing you every day hurts more than I thought it would. I won't have those small, unnoticed moments anymore — the random talks, the caring warnings, the subtle smiles, the familiar voice in the classroom.
+
+People say college memories fade with time.
+But I know one thing for sure — you will never fade from my heart.
+
+Sometimes I feel scared… scared that maybe you don't know how deeply I'm attached to you. Maybe you think I'm just another student who will graduate and move on. And yes, life will move forward. I will grow. You will continue guiding many others.
+
+But you are not just a chapter in my college story.
+You are an emotion I will carry with me.
+
+You have a place in my heart that no one else can ever take. Not because of how long I've known you. Not because of circumstances. But because of how you made me feel — valued, guided, seen, and cared for.
+
+Even if life becomes busy.
+Even if conversations become rare.
+Even if distance grows quietly between us.
+
+My respect for you will never reduce.
+My affection for you will never fade.
+My bond with you will never change.
+
+You are my elder sister by heart. And that truth does not depend on classrooms or college walls.
+
+If I could, I would freeze time — just to stay a little longer in these ordinary moments that became extraordinary because you were in them.
+
+I am going to miss you in ways I cannot fully explain. And maybe a part of me will always remain here — in these corridors, in that classroom, in those small conversations — where you are.
+
+Thank you for being the most beautiful part of my college journey.
+Thank you for unknowingly becoming my Akka.
+
+No matter how far life takes me,
+a part of my heart will always stay where you are.
+
+Not as a student… but as your little one,
+forever grateful for you. 🤍✨`;
+
+let typeInterval=null, charIdx=0, isTyping=false;
+
+function startTypewriter(){
+  if(isTyping) return;
+  isTyping=true; charIdx=0; twText.textContent='';
+  typeInterval = setInterval(()=>{
+    if(charIdx < LETTER.length){
+      twText.textContent += LETTER[charIdx++];
+      // Auto scroll
+      const paper = twText.closest('.letter-paper');
+      if(paper) paper.scrollTop = paper.scrollHeight;
+    } else {
+      clearInterval(typeInterval);
+      twCursor.style.display='none';
+    }
+  }, 28);
+}
+
+envelope.addEventListener('click', ()=>{
+  envelope.classList.toggle('open');
+  if(envelope.classList.contains('open')){
+    setTimeout(()=>{
+      letterReveal.classList.add('open');
+      twCursor.style.display='inline-block';
+      startTypewriter();
+    }, 700);
+  }
+});
+
+closeBtn.addEventListener('click', ()=>{
+  letterReveal.classList.remove('open');
+  envelope.classList.remove('open');
+  if(typeInterval) clearInterval(typeInterval);
+  isTyping=false;
+});
+
+letterReveal.addEventListener('click', e=>{
+  if(e.target === letterReveal){
+    letterReveal.classList.remove('open');
+    envelope.classList.remove('open');
+    if(typeInterval) clearInterval(typeInterval);
+    isTyping=false;
+  }
+});
+
+/* ════════════════════════════════
+   CARDS
+════════════════════════════════ */
+document.querySelectorAll('.glass-card').forEach(card=>{
+  const desc = card.querySelector('.card-desc');
+  const sub = card.querySelector('.card-sub');
+  desc.textContent = card.dataset.desc;
+  card.addEventListener('click',()=>{
+    const open = card.classList.toggle('expanded');
+    sub.textContent = open ? 'Click to close' : 'Click to read';
+  });
+});
+
+/* ════════════════════════════════
+   SCROLL REVEAL
+════════════════════════════════ */
+const observer = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){ e.target.classList.add('in-view'); }
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.reveal, .tl-item').forEach(el=>observer.observe(el));
+
+/* stagger tl items */
+document.querySelectorAll('.tl-item').forEach((el,i)=>{
+  el.style.transitionDelay = (i*0.15)+'s';
+});
+
+</script>
+</body>
+</html>
