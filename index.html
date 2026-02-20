@@ -757,10 +757,7 @@
 
 </div><!-- /main -->
 
-<!-- Background Music -->
-<audio id="bg-music" loop preload="none">
-  <source src="https://archive.org/download/melancholy-ashamaluevmusic/Melancholy.mp3" type="audio/mpeg"/>
-</audio>
+<!-- Music: generated via Web Audio API — no external file needed -->
 
 <!-- Floating Music Button -->
 <button id="music-btn" title="Toggle music" aria-label="Toggle background music">
@@ -1027,6 +1024,7 @@ a part of my heart will always stay where you are.
 
 Not as a student… but as your little one,
 forever grateful for you. 🤍✨`;
+ Sankeerthan K
 
 let typeInterval=null, charIdx=0, isTyping=false;
 
@@ -1103,14 +1101,237 @@ document.querySelectorAll('.tl-item').forEach((el,i)=>{
 });
 
 /* ════════════════════════════════
-   MUSIC PLAYER
+   MUSIC — Cinematic Emotional Piano
+   Web Audio API, no external files
+   Inspired by: Yiruma / Einaudi style
 ════════════════════════════════ */
-const music = document.getElementById('bg-music');
 const musicBtn = document.getElementById('music-btn');
-const iconPlay = document.getElementById('icon-play');
+const iconPlay  = document.getElementById('icon-play');
 const iconPause = document.getElementById('icon-pause');
-let musicStarted = false;
 
+let audioCtx = null, masterGain = null, reverbNode = null;
+let isPlaying = false, scheduleTimer = null;
+let nextBeatTime = 0, beatIndex = 0;
+
+// ── Tuning ──────────────────────────────
+const BPM      = 58;                      // slow, breathing tempo
+const BEAT     = 60 / BPM;               // one quarter note
+const Q        = BEAT;                    // quarter
+const H        = BEAT * 2;               // half
+const DH       = BEAT * 3;               // dotted half
+const W        = BEAT * 4;               // whole
+
+// ── Frequencies (equal temperament) ─────
+const f = {
+  B2:123.47, C3:130.81, D3:146.83, E3:164.81, F3:174.61, G3:196.00, A3:220.00, Bb3:233.08,
+  B3:246.94, C4:261.63, Db4:277.18, D4:293.66, Eb4:311.13, E4:329.63, F4:349.23,
+  Gb4:369.99, G4:392.00, Ab4:415.30, A4:440.00, Bb4:466.16, B4:493.88,
+  C5:523.25, Db5:554.37, D5:587.33, Eb5:622.25, E5:659.25, F5:698.46,
+  G5:783.99, Ab5:830.61, A5:880.00, Bb5:932.33, C6:1046.50
+};
+
+// ── Composition ─────────────────────────
+// Each entry: { melody, bass, dur }
+// melody = freq or null, bass = [freq,...] or []
+// 4-bar loop: Am - F - C - G/B  (classic emotional progression)
+const SCORE = [
+  // Bar 1 — Am  (A minor)
+  { m:f.E5,  b:[f.A2, f.E3, f.A3], dur:H   },
+  { m:f.C5,  b:[],                  dur:Q   },
+  { m:f.D5,  b:[f.A2, f.E3, f.A3], dur:Q   },
+  { m:f.E5,  b:[],                  dur:H   },
+  { m:f.A4,  b:[f.A2, f.C3, f.E3], dur:H   },
+
+  // Bar 2 — F major
+  { m:f.F4,  b:[f.F2, f.C3, f.F3], dur:Q   },
+  { m:f.A4,  b:[],                  dur:Q   },
+  { m:f.C5,  b:[f.F2, f.A3, f.C4], dur:H   },
+  { m:f.Bb4, b:[],                  dur:Q   },
+  { m:f.A4,  b:[f.F2, f.C3, f.F3], dur:Q   },
+
+  // Bar 3 — C major
+  { m:f.G4,  b:[f.C3, f.G3, f.C4], dur:Q   },
+  { m:f.E5,  b:[],                  dur:Q   },
+  { m:f.D5,  b:[f.C3, f.E3, f.G3], dur:H   },
+  { m:f.C5,  b:[],                  dur:Q   },
+  { m:f.B4,  b:[f.C3, f.G3, f.C4], dur:Q   },
+
+  // Bar 4 — G/B (resolve back)
+  { m:f.G4,  b:[f.B2, f.D3, f.G3], dur:Q   },
+  { m:f.A4,  b:[],                  dur:Q   },
+  { m:f.B4,  b:[f.G2, f.B3, f.D4], dur:H   },
+  { m:f.C5,  b:[],                  dur:Q   },
+  { m:f.E5,  b:[f.A2, f.E3, f.A3], dur:Q   },
+
+  // Bar 5 — Am (higher, more intense)
+  { m:f.A5,  b:[f.A2, f.E3, f.A3], dur:H   },
+  { m:f.G5,  b:[],                  dur:Q   },
+  { m:f.F5,  b:[f.A2, f.C4, f.E4], dur:Q   },
+  { m:f.E5,  b:[],                  dur:H   },
+  { m:f.D5,  b:[f.A2, f.E3, f.A3], dur:H   },
+
+  // Bar 6 — F major (lush)
+  { m:f.C5,  b:[f.F2, f.A3, f.C4], dur:H   },
+  { m:f.Bb4, b:[],                  dur:Q   },
+  { m:f.A4,  b:[f.F2, f.C3, f.F3], dur:Q   },
+  { m:f.G4,  b:[],                  dur:H   },
+  { m:f.F4,  b:[f.F2, f.A3, f.C4], dur:H   },
+
+  // Bar 7 — C major (breathe)
+  { m:null,  b:[f.C3, f.G3, f.C4], dur:Q   },
+  { m:f.E5,  b:[],                  dur:Q   },
+  { m:f.D5,  b:[f.C3, f.E3, f.G3], dur:H   },
+  { m:f.C5,  b:[],                  dur:Q   },
+  { m:f.B4,  b:[f.C3, f.G3, f.E4], dur:Q   },
+
+  // Bar 8 — Am resolve (gentle end before loop)
+  { m:f.A4,  b:[f.A2, f.E3, f.A3], dur:H   },
+  { m:f.G4,  b:[],                  dur:Q   },
+  { m:f.E4,  b:[f.A2, f.C3, f.E3], dur:Q   },
+  { m:f.A4,  b:[],                  dur:DH  },
+  { m:null,  b:[f.A2, f.E3, f.A3], dur:Q   },
+];
+
+// ── Audio helpers ────────────────────────
+function makeReverb(ctx){
+  // Simple convolution reverb using noise impulse
+  const len = ctx.sampleRate * 2.8;
+  const buf = ctx.createBuffer(2, len, ctx.sampleRate);
+  for(let c=0;c<2;c++){
+    const d = buf.getChannelData(c);
+    for(let i=0;i<len;i++) d[i] = (Math.random()*2-1) * Math.pow(1 - i/len, 2.2);
+  }
+  const conv = ctx.createConvolver();
+  conv.buffer = buf;
+  return conv;
+}
+
+function playPianoNote(freq, time, dur, vol, ctx, dest){
+  if(!freq || !ctx) return;
+
+  // Layer 1: fundamental (sine — warm core)
+  const osc1 = ctx.createOscillator();
+  osc1.type = 'sine';
+  osc1.frequency.value = freq;
+
+  // Layer 2: second harmonic (triangle — slight brightness)
+  const osc2 = ctx.createOscillator();
+  osc2.type = 'triangle';
+  osc2.frequency.value = freq * 2;
+
+  // Layer 3: fourth harmonic (very soft — air)
+  const osc3 = ctx.createOscillator();
+  osc3.type = 'sine';
+  osc3.frequency.value = freq * 4;
+
+  const g1 = ctx.createGain(), g2 = ctx.createGain(), g3 = ctx.createGain();
+  const master = ctx.createGain();
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.value = 3800;
+  filter.Q.value = 0.5;
+
+  // Piano-style ADSR
+  const atk = 0.008, dec = dur * 0.25, sus = vol * 0.45, rel = dur * 0.65;
+  master.gain.setValueAtTime(0, time);
+  master.gain.linearRampToValueAtTime(vol, time + atk);
+  master.gain.exponentialRampToValueAtTime(sus, time + atk + dec);
+  master.gain.setValueAtTime(sus, time + dur - rel * 0.1);
+  master.gain.exponentialRampToValueAtTime(0.0001, time + dur + rel * 0.3);
+
+  g1.gain.value = 1.0;
+  g2.gain.value = 0.18;
+  g3.gain.value = 0.04;
+
+  [osc1,osc2,osc3].forEach((o,i)=>{
+    const g = [g1,g2,g3][i];
+    o.connect(g); g.connect(filter);
+    o.start(time); o.stop(time + dur + rel + 0.1);
+  });
+  filter.connect(master);
+  master.connect(dest);
+}
+
+function playBassNote(freq, time, dur, vol, ctx, dest){
+  if(!freq || !ctx) return;
+  const osc = ctx.createOscillator();
+  osc.type = 'sine';
+  osc.frequency.value = freq;
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0, time);
+  gain.gain.linearRampToValueAtTime(vol, time + 0.015);
+  gain.gain.exponentialRampToValueAtTime(vol * 0.3, time + dur * 0.4);
+  gain.gain.exponentialRampToValueAtTime(0.0001, time + dur * 1.1);
+  osc.connect(gain); gain.connect(dest);
+  osc.start(time); osc.stop(time + dur * 1.2);
+}
+
+// ── Scheduler ────────────────────────────
+function scheduleNotes(){
+  if(!isPlaying || !audioCtx) return;
+
+  while(nextBeatTime < audioCtx.currentTime + 0.35){
+    const note = SCORE[beatIndex % SCORE.length];
+    const t    = nextBeatTime;
+    const dur  = note.dur;
+
+    // Melody
+    if(note.m) playPianoNote(note.m, t, dur, 0.22, audioCtx, reverbNode);
+
+    // Bass chord — arpeggiate slightly for realism
+    note.b.forEach((freq, i) => {
+      playBassNote(freq, t + i * 0.03, dur * 1.3, 0.10, audioCtx, reverbNode);
+    });
+
+    nextBeatTime += dur;
+    beatIndex++;
+  }
+  scheduleTimer = setTimeout(scheduleNotes, 80);
+}
+
+// ── Start / Stop ─────────────────────────
+function startMusic(){
+  audioCtx  = new (window.AudioContext || window.webkitAudioContext)();
+  masterGain = audioCtx.createGain();
+  masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
+  masterGain.gain.linearRampToValueAtTime(1, audioCtx.currentTime + 4.5);
+
+  // Reverb → dry mix
+  reverbNode = makeReverb(audioCtx);
+  const reverbGain = audioCtx.createGain();
+  reverbGain.gain.value = 0.45;
+  const dryGain = audioCtx.createGain();
+  dryGain.gain.value = 0.7;
+
+  reverbNode.connect(reverbGain);
+  reverbGain.connect(masterGain);
+  // Notes also connect directly for dry signal
+  masterGain.connect(audioCtx.destination);
+
+  // Override destination in play functions to masterGain dry path
+  reverbNode._dryDest = masterGain;
+
+  nextBeatTime = audioCtx.currentTime + 0.15;
+  beatIndex    = 0;
+  isPlaying    = true;
+  scheduleNotes();
+}
+
+function stopMusic(){
+  isPlaying = false;
+  clearTimeout(scheduleTimer);
+  if(masterGain && audioCtx){
+    masterGain.gain.linearRampToValueAtTime(0.0001, audioCtx.currentTime + 2.0);
+    setTimeout(()=>{ try{ audioCtx.close(); }catch(e){} audioCtx=null; masterGain=null; reverbNode=null; }, 2200);
+  }
+}
+
+// ── UI ────────────────────────────────────
+function setPlaying(p){
+  iconPlay.style.display  = p ? 'none'  : 'block';
+  iconPause.style.display = p ? 'block' : 'none';
+  p ? musicBtn.classList.add('playing') : musicBtn.classList.remove('playing');
+}
 function showMusicBtn(){ musicBtn.classList.add('visible'); }
 
 const mainObserver = new MutationObserver(()=>{
@@ -1119,30 +1340,9 @@ const mainObserver = new MutationObserver(()=>{
 mainObserver.observe(mainEl, { attributes: true, attributeFilter: ['class'] });
 if(mainEl.classList.contains('visible')) showMusicBtn();
 
-function setPlaying(playing){
-  iconPlay.style.display  = playing ? 'none'  : 'block';
-  iconPause.style.display = playing ? 'block' : 'none';
-  playing ? musicBtn.classList.add('playing') : musicBtn.classList.remove('playing');
-}
-
 musicBtn.addEventListener('click', ()=>{
-  if(!musicStarted){
-    music.volume = 0;
-    music.play().then(()=>{
-      musicStarted = true;
-      setPlaying(true);
-      let v = 0;
-      const fade = setInterval(()=>{
-        v = Math.min(v + 0.02, 0.38);
-        music.volume = v;
-        if(v >= 0.38) clearInterval(fade);
-      }, 80);
-    }).catch(()=>{});
-  } else if(music.paused){
-    music.play(); setPlaying(true);
-  } else {
-    music.pause(); setPlaying(false);
-  }
+  if(!isPlaying){ startMusic(); setPlaying(true); }
+  else          { stopMusic();  setPlaying(false); }
 });
 
 </script>
